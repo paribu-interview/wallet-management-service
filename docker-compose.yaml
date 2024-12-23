@@ -1,0 +1,46 @@
+version: '3.9'
+
+services:
+  wms:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: wms
+    ports:
+      - "8080:8080"
+    environment:
+      - APP_ENV=production
+      - PG_HOST=postgres_wms
+      - PG_PORT=5432
+      - PG_USER=admin
+      - PG_PASSWORD=admin
+      - PG_NAME=wallet
+      - HTTP_PORT=8080
+    volumes:
+      - ./envs:/app/envs
+    networks:
+      - shared-network
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:15
+    container_name: postgres_wms
+    restart: always
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: wallet
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_wms_data:/var/lib/postgresql/data
+    networks:
+      - shared-network
+
+volumes:
+  postgres_wms_data:
+
+networks:
+  shared-network:
+    external: true
